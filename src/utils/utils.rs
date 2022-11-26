@@ -2,6 +2,10 @@ use mysql::{Pool,PooledConn,Opts,Result};
 use sha2::{Sha256, Sha512, Digest};
 use jwt_simple::prelude::*;
 
+use crate::models::{
+    auth::{TokenData,}
+};
+
 pub struct ConnectInfo {
     pub host : &'static str,
     pub port : &'static str,
@@ -26,7 +30,7 @@ pub fn crypt_password(password:String) -> Option<String>{
 pub fn check_token(token:String) -> Option<String>{
     let xs: [u8; 32] = [241, 167, 179, 123, 41, 128, 25, 208, 162, 245, 241, 228, 24, 132, 163, 245, 102, 140, 140, 234, 235, 14, 90, 104, 15, 129, 8, 61, 174, 109, 250, 28];
     let key = HS256Key::from_bytes(&xs);
-    let claims = key.verify_token::<NoCustomClaims>(&token, None);
+    let claims = key.verify_token::<TokenData>(&token, None);
     if claims.is_err(){
         return None;
     }

@@ -16,7 +16,7 @@ use jwt_simple::prelude::*;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::models::{
-    auth::{UserLog,UserRefresh,TokenJWT,},
+    auth::{UserLog,UserRefresh,TokenJWT,TokenData,},
     users::CurrentUser
 };
 
@@ -43,12 +43,15 @@ pub async fn get_refresh_token(Extension(context): Extension<Context>,Json(req):
     rsp.into()
 }
 
-pub fn generate_token_pair() -> Option<TokenJWT> {
+pub fn generate_token_pair(id_user:u32) -> Option<TokenJWT> {
     let xs: [u8; 32] = [241, 167, 179, 123, 41, 128, 25, 208, 162, 245, 241, 228, 24, 132, 163, 245, 102, 140, 140, 234, 235, 14, 90, 104, 15, 129, 8, 61, 174, 109, 250, 28];
     let key = HS256Key::from_bytes(&xs);
-    let claims = Claims::create(Duration::from_hours(1));
+    let my_additional_data = TokenData{
+        user_id : id_user
+    };
+    let claims = Claims::with_custom_claims(my_additional_data.clone(),Duration::from_hours(1));
     let token = key.authenticate(claims).ok()?;
-    let refreshclaims = Claims::create(Duration::from_hours(140));
+    let refreshclaims = Claims::with_custom_claims(my_additional_data,Duration::from_hours(140));
     let refreshtoken = key.authenticate(refreshclaims).ok()?;
     let start = SystemTime::now();
     let since_the_epoch = start
@@ -70,8 +73,9 @@ pub fn generate_token_user(db_connection: &mut Pool, user:UserLog) -> Option<Tok
                 password : crypt_password(user.password).unwrap()
             });
             if user_find.is_some() {
-                let tokens = generate_token_pair().unwrap();
-                insert_token(&mut v,tokens.clone(),user_find.unwrap().id);
+                let user_id = user_find.unwrap().id;
+                let tokens = generate_token_pair(user_id.clone()).unwrap();
+                insert_token(&mut v,tokens.clone(),user_id);
                 Some(tokens)
             }else{
                 None
@@ -89,8 +93,9 @@ pub fn generate_refresh_token_user(db_connection: &mut Pool, refresh_token:Strin
         Ok(mut v) => {
             let user_find = get_user_by_refresh_token(&mut v,refresh_token.clone());
             if user_find.is_some() {
-                let tokens = generate_token_pair().unwrap();
-                insert_token(&mut v,tokens.clone(),user_find.unwrap().id);
+                let user_id = user_find.unwrap().id;
+                let tokens = generate_token_pair(user_id.clone()).unwrap();
+                insert_token(&mut v,tokens.clone(),user_id);
                 delete_token_by_refresh_token(&mut v, refresh_token);
                 Some(tokens)
             }else{

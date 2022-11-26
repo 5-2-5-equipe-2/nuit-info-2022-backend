@@ -43,3 +43,8 @@ pub struct TokenJWT {
     pub access : String,
     pub timestamp : u64
 }
+
+#[derive(Clone,Serialize, Deserialize)]
+pub struct TokenData {
+   pub user_id: u32,
+}

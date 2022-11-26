@@ -4,15 +4,14 @@ use tower_http::cors::{Any, CorsLayer};
 use serde::{Deserialize, Serialize};
 use mysql::PooledConn;
 
-mod jwt;
-use jwt::{UserLog,UserRefresh,TokenJWT,CurrentUser,generate_token_user,generate_refresh_token_user};
-
-mod database;
-use database::{ConnectInfo,connect_database};
+mod controllers;
+use controllers::{auth::get_token,auth::get_refresh_token};
 
 mod my_middleware;
-use my_middleware::{auth_middleware,nauth_middleware,Context};
+use my_middleware::{my_middleware::{auth_middleware,nauth_middleware,Context}};
 
+mod models;
+mod utils;
 
 #[tokio::main]
 async fn main() {
@@ -49,15 +48,4 @@ async fn root(Extension(context): Extension<Context>) -> &'static str {
 async fn auth_root(Extension(context): Extension<Context>) -> &'static str {
     println!("Hello world {}",context.current_user.unwrap().username);
     "Hello, World Auth!"
-}
-//Extension(db_connection): Extension<PooledConn>, 
-async fn get_token(Extension(context): Extension<Context>, Json(req): Json<UserLog>) -> Json<TokenJWT> {
-    println!("start_mission, req: {:?}", req.username);
-    let rsp = generate_token_user(&mut context.db_connection.unwrap(),req).unwrap();
-    rsp.into()
-}
-
-async fn get_refresh_token(Extension(context): Extension<Context>,Json(req): Json<UserRefresh>) -> Json<TokenJWT> {
-    let rsp = generate_refresh_token_user(&mut context.db_connection.unwrap(),req.refresh).unwrap();
-    rsp.into()
 }

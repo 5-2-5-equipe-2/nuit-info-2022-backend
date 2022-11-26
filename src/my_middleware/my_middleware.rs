@@ -9,9 +9,10 @@ use axum::{
 use mysql::{Pool,PooledConn};
 use mysql::prelude::Queryable;
 
-use crate::jwt::{CurrentUser,authorize_current_user};
+use crate::models::users::{CurrentUser};
+use crate::controllers::auth::{authorize_current_user};
 
-use crate::database::{ConnectInfo,connect_database};
+use crate::utils::utils::{ConnectInfo,connect_database};
 
 #[derive(Clone)]
 pub struct Context { 

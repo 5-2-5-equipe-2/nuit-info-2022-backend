@@ -1,9 +1,11 @@
 use async_graphql::{Context, Object, Result};
+
 use entity::async_graphql::{self, InputObject, SimpleObject};
 use entity::user;
 use graphql_core::user::Mutation;
 
 use crate::db::Database;
+
 // I normally separate the input types into separate files/modules, but this is just
 // a quick example.
 #[derive(InputObject)]
@@ -13,6 +15,7 @@ pub struct CreateUserInput {
     pub email: String,
     pub scope_id: i32,
 }
+
 impl CreateUserInput {
     fn into_model_with_arbitrary_id(self) -> user::Model {
         user::Model {
@@ -31,6 +34,12 @@ impl CreateUserInput {
 pub struct DeleteUserResult {
     pub success: bool,
     pub rows_affected: u64,
+}
+
+#[derive(SimpleObject)]
+pub struct ValidLoginResult {
+    pub access: String,
+    pub refresh: String,
 }
 
 #[derive(Default)]

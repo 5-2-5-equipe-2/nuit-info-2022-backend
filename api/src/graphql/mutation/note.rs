@@ -1,4 +1,5 @@
 use async_graphql::{Context, Object, Result};
+
 use entity::async_graphql::{self, InputObject, SimpleObject};
 use entity::note;
 use graphql_core::note::Mutation;

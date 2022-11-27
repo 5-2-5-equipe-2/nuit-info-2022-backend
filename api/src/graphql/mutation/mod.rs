@@ -1,12 +1,13 @@
 use entity::async_graphql;
-
-pub mod note;
-pub mod user;
+pub use note::NoteMutation;
+pub use scope::ScopeMutation;
 pub use user::UserMutation;
 
-pub use note::NoteMutation;
+pub mod note;
+pub mod scope;
+pub mod user;
 
 // Add your other ones here to create a unified Mutation object
 // e.x. Mutation(NoteMutation, OtherMutation, OtherOtherMutation)
 #[derive(async_graphql::MergedObject, Default)]
-pub struct Mutation(NoteMutation, UserMutation);
+pub struct Mutation(NoteMutation, UserMutation, ScopeMutation);

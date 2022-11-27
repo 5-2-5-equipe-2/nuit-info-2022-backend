@@ -1,16 +1,23 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use axum::{extract::Extension, http::{header::HeaderMap, header::HeaderValue}, Json, middleware, Router, routing::get, routing::post};
+use axum::{
+    extract::Extension,
+    http::{header::HeaderMap, header::HeaderValue},
+    middleware,
+    routing::get,
+    routing::post,
+    Json, Router,
+};
 use mysql::PooledConn;
 use serde::{Deserialize, Serialize};
 use tower_http::cors::{Any, CorsLayer};
 
 use controllers::{auth::get_refresh_token, auth::get_token};
-use my_middleware::{my_middleware::{auth_middleware, Context, nauth_middleware}};
+use my_middleware::my_middleware::{auth_middleware, nauth_middleware, Context};
 
 mod controllers;
-mod my_middleware;
 mod models;
+mod my_middleware;
 mod utils;
 
 #[tokio::main]
@@ -47,6 +54,6 @@ async fn root(Extension(context): Extension<Context>) -> &'static str {
 }
 
 async fn auth_root(Extension(context): Extension<Context>) -> &'static str {
-    println!("Hello world {}",context.current_user.unwrap().username);
+    println!("Hello world {}", context.current_user.unwrap().username);
     "Hello, World Auth!"
 }

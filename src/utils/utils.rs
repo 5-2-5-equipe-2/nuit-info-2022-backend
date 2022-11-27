@@ -1,22 +1,14 @@
-use mysql::{Pool,PooledConn,Opts,Result};
-use sha2::{Sha256, Sha512, Digest};
 use jwt_simple::prelude::*;
+use mysql::{Opts, Pool, PooledConn, Result};
+use sha2::{Digest, Sha256, Sha512};
 
-use crate::models::{
-    auth::{TokenData,}
-};
+use crate::models::auth::TokenData;
 
-pub struct ConnectInfo {
-    pub host : &'static str,
-    pub port : &'static str,
-    pub user : &'static str,
-    pub password : &'static str,
-    pub db_name : &'static str
-}
 
-pub fn connect_database(connect_info:ConnectInfo) -> Result<Pool> {
-    let url = format!("mysql://{}:{}@{}:{}/{}", connect_info.user,connect_info.password,connect_info.host,connect_info.port,connect_info.db_name);
-    let pool = Pool::new(Opts::from_url(&url).unwrap());
+pub fn connect_database() -> Result<Pool> {
+    dotenv::dotenv().ok();
+    let url = std::env::var("RUST_DATABASE_URL").expect("RUST_DATABASE_URL must be set");
+    let pool = Pool::new(url.as_str());
     pool
 }
 

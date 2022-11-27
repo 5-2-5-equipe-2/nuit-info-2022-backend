@@ -13,3 +13,4 @@ dotenvy = "0.15.0"
 async-graphql-axum = "^4.0.6"
 entity = { path = "../entity" }
 migration = { path = "../migration" }
+chrono = "0.4.23"

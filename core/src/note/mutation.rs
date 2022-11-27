@@ -1,4 +1,5 @@
-use ::entity::{note, note::Entity as Note};
+use ::entity::note;
+use ::entity::prelude::Note;
 use sea_orm::*;
 
 pub struct Mutation;

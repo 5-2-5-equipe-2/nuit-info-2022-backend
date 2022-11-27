@@ -6,8 +6,6 @@ pub struct Migration;
 enum Scope {
     Table,
     Id,
-    Title,
-    Description,
 }
 
 #[async_trait::async_trait]

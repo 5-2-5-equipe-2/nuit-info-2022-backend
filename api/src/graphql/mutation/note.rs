@@ -1,7 +1,7 @@
 use async_graphql::{Context, Object, Result};
 use entity::async_graphql::{self, InputObject, SimpleObject};
 use entity::note;
-use graphql_core::Mutation;
+use graphql_core::note::Mutation;
 
 use crate::db::Database;
 
@@ -25,7 +25,7 @@ impl CreateNoteInput {
 }
 
 #[derive(SimpleObject)]
-pub struct DeleteResult {
+pub struct DeleteNoteResult {
     pub success: bool,
     pub rows_affected: u64,
 }
@@ -46,7 +46,7 @@ impl NoteMutation {
         Ok(Mutation::create_note(conn, input.into_model_with_arbitrary_id()).await?)
     }
 
-    pub async fn delete_note(&self, ctx: &Context<'_>, id: i32) -> Result<DeleteResult> {
+    pub async fn delete_note(&self, ctx: &Context<'_>, id: i32) -> Result<DeleteNoteResult> {
         let db = ctx.data::<Database>().unwrap();
         let conn = db.get_connection();
 
@@ -55,7 +55,7 @@ impl NoteMutation {
             .expect("Cannot delete note");
 
         if res.rows_affected <= 1 {
-            Ok(DeleteResult {
+            Ok(DeleteNoteResult {
                 success: true,
                 rows_affected: res.rows_affected,
             })

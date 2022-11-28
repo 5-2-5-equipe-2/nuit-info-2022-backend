@@ -5,6 +5,7 @@ use entity::user;
 use graphql_core::user::Mutation;
 
 use crate::db::Database;
+use crate::jwt::{create_access_token, TokenType};
 
 #[derive(InputObject)]
 pub struct CreateUserInput {
@@ -19,7 +20,7 @@ impl CreateUserInput {
         user::Model {
             id: 0,
             username: self.username,
-            password: self.password,
+            password: Some(self.password),
             email: self.email,
             created_at: chrono::Utc::now().to_string(),
             updated_at: chrono::Utc::now().to_string(),
@@ -38,6 +39,12 @@ pub struct DeleteUserResult {
 pub struct ValidLoginResult {
     pub access: String,
     pub refresh: String,
+}
+
+#[derive(InputObject)]
+pub struct LoginInput {
+    pub username: String,
+    pub password: String,
 }
 
 #[derive(Default)]
@@ -72,26 +79,22 @@ impl UserMutation {
             unimplemented!()
         }
     }
-    // pub async fn login(
-    //     &self,
-    //     ctx: &Context<'_>,
-    //     username: String,
-    //     password: String,
-    // ) -> Result<ValidLoginResult> {
-    //     let db = ctx.data::<Database>().unwrap();
-    //     let conn = db.get_connection();
-    //
-    //     let res = Mutation::login(conn, username, password)
-    //         .await
-    //         .expect("Cannot login");
-    //
-    //     if res.rows_affected <= 1 {
-    //         Ok(ValidLoginResult {
-    //             access: res.access,
-    //             refresh: res.refresh,
-    //         })
-    //     } else {
-    //         unimplemented!()
-    //     }
-    // }
+    pub async fn login_user(
+        &self,
+        ctx: &Context<'_>,
+        input: LoginInput,
+    ) -> Result<ValidLoginResult> {
+        let db = ctx.data::<Database>().unwrap();
+        let conn = db.get_connection();
+
+        let res = Mutation::login(conn, input.username, input.password)
+            .await
+            .expect("Cannot login");
+
+        // jwt
+        let access = create_access_token(res.id, res.scope_id, TokenType::Access).await;
+        let refresh = create_access_token(res.id, res.scope_id, TokenType::Refresh).await;
+
+        Ok(ValidLoginResult { access, refresh })
+    }
 }

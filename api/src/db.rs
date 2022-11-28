@@ -1,3 +1,4 @@
+use dotenvy::dotenv;
 use graphql_core::sea_orm::DatabaseConnection;
 
 pub struct Database {
@@ -6,6 +7,7 @@ pub struct Database {
 
 impl Database {
     pub async fn new() -> Self {
+        dotenv().ok();
         let connection =
             graphql_core::sea_orm::Database::connect(std::env::var("DATABASE_URL").unwrap())
                 .await

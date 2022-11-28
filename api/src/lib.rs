@@ -1,19 +1,20 @@
-use async_graphql::http::{GraphQLPlaygroundConfig, playground_source};
+use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
     extract::Extension,
     response::{Html, IntoResponse},
-    Router,
     routing::get,
+    Router,
 };
 #[cfg(debug_assertions)]
 use dotenvy::dotenv;
 
 use entity::async_graphql;
-use graphql::schema::{AppSchema, build_schema};
+use graphql::schema::{build_schema, AppSchema};
 
 mod db;
 mod graphql;
+mod jwt;
 
 async fn graphql_handler(schema: Extension<AppSchema>, req: GraphQLRequest) -> GraphQLResponse {
     schema.execute(req.into_inner()).await.into()

@@ -93,3 +93,4 @@ fabric.properties
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Rust,JetBrains
 /.idea/sonarlint
+data

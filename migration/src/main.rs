@@ -1,7 +1,6 @@
-use sea_orm_migration::prelude::*;
-
 #[cfg(debug_assertions)]
 use dotenvy::dotenv;
+use sea_orm_migration::prelude::*;
 
 #[async_std::main]
 async fn main() {

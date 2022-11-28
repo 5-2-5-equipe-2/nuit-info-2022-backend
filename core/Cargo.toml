@@ -7,12 +7,13 @@ edition = "2021"
 
 [dependencies]
 entity = { path = "../entity" }
+bcrypt = "0.13"
 
 [dependencies.sea-orm]
 version = "^0.10.3" # sea-orm version
 features = [
     "debug-print",
-#    "runtime-async-std-native-tls",
+    #    "runtime-async-std-native-tls",
     # "sqlx-postgres",
     # "sqlx-mysql",
     "sqlx-sqlite",

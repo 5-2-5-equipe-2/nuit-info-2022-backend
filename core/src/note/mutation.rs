@@ -1,6 +1,7 @@
+use sea_orm::*;
+
 use ::entity::note;
 use ::entity::prelude::Note;
-use sea_orm::*;
 
 pub struct Mutation;
 
@@ -35,8 +36,8 @@ impl Mutation {
             title: Set(form_data.title.to_owned()),
             text: Set(form_data.text.to_owned()),
         }
-        .update(db)
-        .await
+            .update(db)
+            .await
     }
 
     pub async fn delete_note(db: &DbConn, id: i32) -> Result<DeleteResult, DbErr> {

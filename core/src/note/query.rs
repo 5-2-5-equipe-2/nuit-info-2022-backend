@@ -1,6 +1,7 @@
+use sea_orm::*;
+
 use ::entity::note;
 use ::entity::prelude::Note;
-use sea_orm::*;
 
 pub struct Query;
 

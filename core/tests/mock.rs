@@ -1,8 +1,8 @@
-mod prepare;
-
 use entity::note;
 use graphql_example_core::{Mutation, Query};
 use prepare::prepare_mock_db;
+
+mod prepare;
 
 #[tokio::test]
 async fn main() {
@@ -29,8 +29,8 @@ async fn main() {
                 text: "Text D".to_owned(),
             },
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
 
         assert_eq!(
             note,
@@ -52,8 +52,8 @@ async fn main() {
                 text: "New Text A".to_owned(),
             },
         )
-        .await
-        .unwrap();
+            .await
+            .unwrap();
 
         assert_eq!(
             note,

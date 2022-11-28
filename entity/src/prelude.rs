@@ -3,3 +3,4 @@
 pub use super::note::Entity as Note;
 pub use super::scope::Entity as Scope;
 pub use super::user::Entity as User;
+

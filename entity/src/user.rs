@@ -2,6 +2,7 @@ use async_graphql::*;
 use sea_orm::entity::prelude::*;
 use sea_orm::DeleteMany;
 use serde::{Deserialize, Serialize};
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel, Serialize, Deserialize, SimpleObject)]
 #[sea_orm(table_name = "user")]
 #[graphql(concrete(name = "User", params()))]
@@ -38,6 +39,7 @@ impl ActiveModelBehavior for ActiveModel {}
 
 impl Entity {
     pub fn find_by_id(id: i32) -> Select<Entity> {
+        // do not send password field
         Self::find().filter(Column::Id.eq(id))
     }
     pub fn find_by_username(username: &str) -> Select<Entity> {

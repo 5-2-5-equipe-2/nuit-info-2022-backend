@@ -6,8 +6,6 @@ use graphql_core::user::Mutation;
 
 use crate::db::Database;
 
-// I normally separate the input types into separate files/modules, but this is just
-// a quick example.
 #[derive(InputObject)]
 pub struct CreateUserInput {
     pub username: String,
@@ -74,4 +72,26 @@ impl UserMutation {
             unimplemented!()
         }
     }
+    // pub async fn login(
+    //     &self,
+    //     ctx: &Context<'_>,
+    //     username: String,
+    //     password: String,
+    // ) -> Result<ValidLoginResult> {
+    //     let db = ctx.data::<Database>().unwrap();
+    //     let conn = db.get_connection();
+    //
+    //     let res = Mutation::login(conn, username, password)
+    //         .await
+    //         .expect("Cannot login");
+    //
+    //     if res.rows_affected <= 1 {
+    //         Ok(ValidLoginResult {
+    //             access: res.access,
+    //             refresh: res.refresh,
+    //         })
+    //     } else {
+    //         unimplemented!()
+    //     }
+    // }
 }

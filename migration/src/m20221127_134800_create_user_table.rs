@@ -2,6 +2,7 @@ use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
+
 #[derive(Iden)]
 enum Scope {
     Table,

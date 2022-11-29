@@ -9,6 +9,8 @@ use axum::{
 };
 #[cfg(debug_assertions)]
 use dotenvy::dotenv;
+use tower_http::cors::{Any, CorsLayer};
+use tower_http::trace::TraceLayer;
 
 use auth_middleware::auth_middleware;
 use entity::async_graphql;
@@ -46,6 +48,7 @@ pub async fn main() {
 
     let db = Database::new().await;
     let conn = db.get_connection();
+    let cors = CorsLayer::new().allow_origin(Any);
 
     Migrator::up(&conn.clone(), None).await.unwrap();
 
@@ -57,12 +60,16 @@ pub async fn main() {
             "/api/graphql",
             get(graphql_playground).post(graphql_handler),
         )
-        .layer(Extension(schema));
+        .layer(Extension(schema))
+        .layer(CorsLayer::permissive())
+        .layer(TraceLayer::new_for_http());
 
     let auth_endpoint = Router::new()
         .route("/api/auth/graphql", post(graphql_handler_auth))
         .route_layer(middleware::from_fn(auth_middleware))
-        .layer(Extension(schema_auth));
+        .layer(Extension(schema_auth))
+        .layer(CorsLayer::permissive())
+        .layer(TraceLayer::new_for_http());
 
     let app = unauth_endpoint.merge(auth_endpoint);
 

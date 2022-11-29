@@ -1,6 +1,6 @@
-use async_graphql::{Context, Object, Result,Error};
+use async_graphql::{Context, Error, Object, Result};
 
-use entity::async_graphql::{self, InputObject, SimpleObject};
+use entity::async_graphql::{self, ErrorExtensions, InputObject, SimpleObject};
 use entity::user;
 use graphql_core::user::Mutation;
 
@@ -43,7 +43,7 @@ pub struct ValidLoginResult {
 
 #[derive(InputObject)]
 pub struct RefreshInput {
-    pub refresh: String
+    pub refresh: String,
 }
 
 #[derive(InputObject)]
@@ -92,15 +92,18 @@ impl UserMutation {
         let db = ctx.data::<Database>().unwrap();
         let conn = db.get_connection();
 
-        let res = Mutation::login(conn, input.username, input.password)
-            .await
-            .expect("Cannot login");
+        let res = Mutation::login(conn, input.username, input.password).await;
 
-        // jwt
-        let access = create_access_token(res.id, res.scope_id, TokenType::Access).await;
-        let refresh = create_access_token(res.id, res.scope_id, TokenType::Refresh).await;
+        if res.is_ok() {
+            let user = res.unwrap();
+            let access = create_access_token(user.id, user.scope_id, TokenType::Access).await;
+            let refresh = create_access_token(user.id, user.scope_id, TokenType::Refresh).await;
 
-        Ok(ValidLoginResult { access, refresh })
+            Ok(ValidLoginResult { access, refresh })
+        } else {
+            Err(async_graphql::Error::new(res.err().unwrap().to_string())
+                .extend_with(|_, e| e.set("code", "INVALID_LOGIN")))
+        }
     }
 
     pub async fn refresh_user(
@@ -108,16 +111,18 @@ impl UserMutation {
         ctx: &Context<'_>,
         input: RefreshInput,
     ) -> Result<ValidLoginResult> {
-        println!("Token:{}",input.refresh);
-        let claim_token = validate_token(input.refresh.as_str()).await.expect("Invalid Refresh Token !");
-        if claim_token.token_type== TokenType::Refresh as i32{
-            let access = create_access_token(claim_token.sub, claim_token.scope, TokenType::Access).await;
-            let refresh = create_access_token(claim_token.sub, claim_token.scope, TokenType::Refresh).await;
+        println!("Token:{}", input.refresh);
+        let claim_token = validate_token(input.refresh.as_str())
+            .await
+            .expect("Invalid Refresh Token !");
+        if claim_token.token_type == TokenType::Refresh as i32 {
+            let access =
+                create_access_token(claim_token.sub, claim_token.scope, TokenType::Access).await;
+            let refresh =
+                create_access_token(claim_token.sub, claim_token.scope, TokenType::Refresh).await;
             Ok(ValidLoginResult { access, refresh })
-        }else{
+        } else {
             Err(Error::new("Error Invalide Token"))
         }
-
-        
     }
 }

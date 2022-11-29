@@ -4,12 +4,9 @@ use axum::{
     response::Response,
 };
 
-use crate::jwt::{validate_token};
+use crate::jwt::validate_token;
 
-pub async fn auth_middleware<B>(
-    req: Request<B>,
-    next: Next<B>,
-) -> Result<Response, StatusCode> {
+pub async fn auth_middleware<B>(req: Request<B>, next: Next<B>) -> Result<Response, StatusCode> {
     let auth_header = req
         .headers()
         .get(header::AUTHORIZATION)
@@ -30,10 +27,10 @@ pub async fn auth_middleware<B>(
             } else {
                 Err(StatusCode::UNAUTHORIZED)
             }
-        }else{
+        } else {
             Err(StatusCode::UNAUTHORIZED)
         }
-    }else{
+    } else {
         Err(StatusCode::UNAUTHORIZED)
     }
 }

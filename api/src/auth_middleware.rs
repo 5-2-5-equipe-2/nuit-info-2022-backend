@@ -1,15 +1,13 @@
 use axum::{
-    extract::Extension,
     http::{header, Request, StatusCode},
-    middleware::{self, Next},
-    response::{IntoResponse, Response},
-    Router,
+    middleware::Next,
+    response::Response,
 };
 
 use crate::jwt::{validate_token};
 
 pub async fn auth_middleware<B>(
-    mut req: Request<B>,
+    req: Request<B>,
     next: Next<B>,
 ) -> Result<Response, StatusCode> {
     let auth_header = req

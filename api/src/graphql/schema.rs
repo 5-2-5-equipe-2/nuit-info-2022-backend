@@ -1,12 +1,9 @@
-use std::sync::{Arc, Mutex, RwLock};
 use async_graphql::{EmptySubscription, Schema};
 
 use entity::async_graphql;
-use migration::{Migrator, MigratorTrait};
 use migration::sea_orm::DatabaseConnection;
 
 use crate::{
-    db::Database,
     graphql::{mutation::Mutation, mutation::MutationAuth, query::Query, query::QueryAuth},
 };
 

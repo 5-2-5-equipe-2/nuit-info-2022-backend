@@ -4,8 +4,6 @@ use entity::{async_graphql, user};
 use graphql_core::user::Query;
 use migration::sea_orm::DatabaseConnection;
 
-use crate::db::Database;
-
 #[derive(Default)]
 pub struct UserQuery;
 

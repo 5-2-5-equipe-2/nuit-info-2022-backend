@@ -4,8 +4,6 @@ use entity::{async_graphql, note};
 use graphql_core::note::Query;
 use graphql_core::sea_orm::DatabaseConnection;
 
-use crate::db::Database;
-
 #[derive(Default)]
 pub struct NoteQuery;
 

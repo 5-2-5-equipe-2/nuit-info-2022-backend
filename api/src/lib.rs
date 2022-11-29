@@ -1,4 +1,3 @@
-use std::sync::{Arc, Mutex, RwLock};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{

@@ -5,8 +5,6 @@ use entity::note;
 use graphql_core::note::Mutation;
 use graphql_core::sea_orm::DatabaseConnection;
 
-use crate::db::Database;
-
 // I normally separate the input types into separate files/modules, but this is just
 // a quick example.
 

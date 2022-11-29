@@ -5,7 +5,6 @@ use entity::user;
 use graphql_core::user::Mutation;
 use migration::sea_orm::DatabaseConnection;
 
-use crate::db::Database;
 use crate::jwt::{create_access_token, validate_token, TokenType};
 
 #[derive(InputObject)]
@@ -106,7 +105,7 @@ impl UserMutation {
 
     pub async fn refresh_user(
         &self,
-        ctx: &Context<'_>,
+        _ctx: &Context<'_>,
         input: RefreshInput,
     ) -> Result<ValidLoginResult> {
         println!("Token:{}", input.refresh);

@@ -5,8 +5,6 @@ use entity::scope;
 use graphql_core::scope::Mutation;
 use migration::sea_orm::DatabaseConnection;
 
-use crate::db::Database;
-
 #[derive(InputObject)]
 pub struct CreateScopeInput {
     pub title: String,

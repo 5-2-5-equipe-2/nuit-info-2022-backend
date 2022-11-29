@@ -3,6 +3,7 @@ use async_graphql::{Context, Object, Result};
 use entity::async_graphql::{self, InputObject, SimpleObject};
 use entity::scope;
 use graphql_core::scope::Mutation;
+use migration::sea_orm::DatabaseConnection;
 
 use crate::db::Database;
 
@@ -38,15 +39,13 @@ impl ScopeMutation {
         ctx: &Context<'_>,
         input: CreateScopeInput,
     ) -> Result<scope::Model> {
-        let db = ctx.data::<Database>().unwrap();
-        let conn = db.get_connection();
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
 
         Ok(Mutation::create_scope(conn, input.into_model_with_arbitrary_id()).await?)
     }
 
     pub async fn delete_scope(&self, ctx: &Context<'_>, id: i32) -> Result<DeleteScopeResult> {
-        let db = ctx.data::<Database>().unwrap();
-        let conn = db.get_connection();
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
 
         let res = Mutation::delete_scope(conn, id)
             .await

@@ -3,6 +3,7 @@ use async_graphql::{Context, Object, Result};
 use entity::async_graphql::{self, InputObject, SimpleObject};
 use entity::note;
 use graphql_core::note::Mutation;
+use graphql_core::sea_orm::DatabaseConnection;
 
 use crate::db::Database;
 
@@ -41,15 +42,13 @@ impl NoteMutation {
         ctx: &Context<'_>,
         input: CreateNoteInput,
     ) -> Result<note::Model> {
-        let db = ctx.data::<Database>().unwrap();
-        let conn = db.get_connection();
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
 
         Ok(Mutation::create_note(conn, input.into_model_with_arbitrary_id()).await?)
     }
 
     pub async fn delete_note(&self, ctx: &Context<'_>, id: i32) -> Result<DeleteNoteResult> {
-        let db = ctx.data::<Database>().unwrap();
-        let conn = db.get_connection();
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
 
         let res = Mutation::delete_note(conn, id)
             .await

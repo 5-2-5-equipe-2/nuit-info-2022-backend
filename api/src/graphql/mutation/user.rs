@@ -3,6 +3,7 @@ use async_graphql::{Context, Error, Object, Result};
 use entity::async_graphql::{self, ErrorExtensions, InputObject, SimpleObject};
 use entity::user;
 use graphql_core::user::Mutation;
+use migration::sea_orm::DatabaseConnection;
 
 use crate::db::Database;
 use crate::jwt::{create_access_token, validate_token, TokenType};
@@ -62,14 +63,12 @@ impl UserMutation {
         ctx: &Context<'_>,
         input: CreateUserInput,
     ) -> Result<user::Model> {
-        let db = ctx.data::<Database>().unwrap();
-        let conn = db.get_connection();
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
         Ok(Mutation::create_user(conn, input.into_model_with_arbitrary_id()).await?)
     }
 
     pub async fn delete_user(&self, ctx: &Context<'_>, id: i32) -> Result<DeleteUserResult> {
-        let db = ctx.data::<Database>().unwrap();
-        let conn = db.get_connection();
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
 
         let res = Mutation::delete_user(conn, id)
             .await
@@ -89,8 +88,7 @@ impl UserMutation {
         ctx: &Context<'_>,
         input: LoginInput,
     ) -> Result<ValidLoginResult> {
-        let db = ctx.data::<Database>().unwrap();
-        let conn = db.get_connection();
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
 
         let res = Mutation::login(conn, input.username, input.password).await;
 

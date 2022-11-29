@@ -1,3 +1,4 @@
+use std::sync::{Arc, Mutex, RwLock};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
@@ -45,13 +46,12 @@ pub async fn main() {
     dotenv().ok();
 
     let db = Database::new().await;
+    let conn = db.get_connection();
 
-    Migrator::up(db.get_connection(), None).await.unwrap();
+    Migrator::up(&conn.clone(), None).await.unwrap();
 
-    let db2 = Database::new().await;
-
-    let schema = build_schema(db).await;
-    let schema_auth = build_schema_auth(db2).await;
+    let schema = build_schema(conn.clone()).await;
+    let schema_auth = build_schema_auth(conn.clone()).await;
 
     let unauth_endpoint = Router::new()
         .route(

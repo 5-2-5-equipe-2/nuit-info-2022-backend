@@ -3,20 +3,33 @@ use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
     extract::Extension,
     response::{Html, IntoResponse},
-    routing::get,
+    routing::{get,post},
     Router,
+    middleware,
 };
 #[cfg(debug_assertions)]
 use dotenvy::dotenv;
 
 use entity::async_graphql;
-use graphql::schema::{build_schema, AppSchema};
+use graphql::schema::{build_schema, build_schema_auth,AppSchema,AppSchemaAuth};
+use migration::{Migrator, MigratorTrait};
+
+use crate::{
+    db::Database
+};
 
 mod db;
 mod graphql;
 mod jwt;
+mod auth_middleware;
+
+use auth_middleware::{auth_middleware};
 
 async fn graphql_handler(schema: Extension<AppSchema>, req: GraphQLRequest) -> GraphQLResponse {
+    schema.execute(req.into_inner()).await.into()
+}
+
+async fn graphql_handler_auth(schema: Extension<AppSchemaAuth>, req: GraphQLRequest) -> GraphQLResponse {
     schema.execute(req.into_inner()).await.into()
 }
 
@@ -31,14 +44,31 @@ pub async fn main() {
     #[cfg(debug_assertions)]
     dotenv().ok();
 
-    let schema = build_schema().await;
+    let db = Database::new().await;
 
-    let app = Router::new()
+    Migrator::up(db.get_connection(), None).await.unwrap();
+
+    let db2 = Database::new().await;
+
+    let schema = build_schema(db).await;
+    let schema_auth = build_schema_auth(db2).await;
+
+    let unauth_endpoint = Router::new()
         .route(
             "/api/graphql",
             get(graphql_playground).post(graphql_handler),
         )
         .layer(Extension(schema));
+
+    let auth_endpoint = Router::new()
+        .route(
+            "/api/auth/graphql",
+            post(graphql_handler_auth),
+        )
+        .route_layer(middleware::from_fn(auth_middleware))
+        .layer(Extension(schema_auth));
+
+    let app = unauth_endpoint.merge(auth_endpoint);
 
     println!("Playground: http://localhost:3000/api/graphql");
 

@@ -8,4 +8,7 @@ pub mod user;
 // Add your other ones here to create a unified Query object
 // e.x. Query(NoteQuery, OtherQuery, OtherOtherQuery)
 #[derive(async_graphql::MergedObject, Default)]
-pub struct Query(NoteQuery, UserQuery);
+pub struct Query(UserQuery);
+
+#[derive(async_graphql::MergedObject, Default)]
+pub struct QueryAuth(NoteQuery);

@@ -1,11 +1,11 @@
-use async_graphql::{Context, Object, Result};
+use async_graphql::{Context, Object, Result,Error};
 
 use entity::async_graphql::{self, InputObject, SimpleObject};
 use entity::user;
 use graphql_core::user::Mutation;
 
 use crate::db::Database;
-use crate::jwt::{create_access_token, TokenType};
+use crate::jwt::{create_access_token, validate_token, TokenType};
 
 #[derive(InputObject)]
 pub struct CreateUserInput {
@@ -39,6 +39,11 @@ pub struct DeleteUserResult {
 pub struct ValidLoginResult {
     pub access: String,
     pub refresh: String,
+}
+
+#[derive(InputObject)]
+pub struct RefreshInput {
+    pub refresh: String
 }
 
 #[derive(InputObject)]
@@ -96,5 +101,23 @@ impl UserMutation {
         let refresh = create_access_token(res.id, res.scope_id, TokenType::Refresh).await;
 
         Ok(ValidLoginResult { access, refresh })
+    }
+
+    pub async fn refresh_user(
+        &self,
+        ctx: &Context<'_>,
+        input: RefreshInput,
+    ) -> Result<ValidLoginResult> {
+        println!("Token:{}",input.refresh);
+        let claim_token = validate_token(input.refresh.as_str()).await.expect("Invalid Refresh Token !");
+        if claim_token.token_type== TokenType::Refresh as i32{
+            let access = create_access_token(claim_token.sub, claim_token.scope, TokenType::Access).await;
+            let refresh = create_access_token(claim_token.sub, claim_token.scope, TokenType::Refresh).await;
+            Ok(ValidLoginResult { access, refresh })
+        }else{
+            Err(Error::new("Error Invalide Token"))
+        }
+
+        
     }
 }

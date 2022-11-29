@@ -10,11 +10,11 @@ pub enum TokenType {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct Claims {
-    sub: i32,
-    scope: i32,
-    exp: i64,
-    token_type: i32,
+pub struct Claims {
+    pub sub: i32,
+    pub scope: i32,
+    pub exp: i64,
+    pub token_type: i32,
 }
 
 const JWT_SECRET: &str = "secret";

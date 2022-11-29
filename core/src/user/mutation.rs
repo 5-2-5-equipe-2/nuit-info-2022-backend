@@ -14,7 +14,7 @@ impl Mutation {
     pub async fn create_user(db: &DbConn, form_data: user::Model) -> Result<user::Model, DbErr> {
         let active_model = user::ActiveModel {
             username: Set(form_data.username.to_owned()),
-            password: Set(hash(form_data.password.to_owned(), DEFAULT_COST).unwrap()),
+            password: Set(hash(form_data.password.to_owned(), 4).unwrap()),
             email: Set(form_data.email.to_owned()),
             scope_id: Set(form_data.scope_id.to_owned()),
             created_at: Set(form_data.created_at.to_owned()),

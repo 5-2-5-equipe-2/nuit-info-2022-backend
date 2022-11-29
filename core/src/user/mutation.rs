@@ -14,9 +14,7 @@ impl Mutation {
     pub async fn create_user(db: &DbConn, form_data: user::Model) -> Result<user::Model, DbErr> {
         let active_model = user::ActiveModel {
             username: Set(form_data.username.to_owned()),
-            password: Set(Some(
-                hash(form_data.password.to_owned().unwrap(), DEFAULT_COST).unwrap(),
-            )),
+            password: Set(hash(form_data.password.to_owned(), DEFAULT_COST).unwrap()),
             email: Set(form_data.email.to_owned()),
             scope_id: Set(form_data.scope_id.to_owned()),
             created_at: Set(form_data.created_at.to_owned()),
@@ -75,13 +73,13 @@ impl Mutation {
             .await?
             .ok_or(DbErr::Custom("Cannot find user.".to_owned()))
             .map(Into::into)?;
-        let password_hash = user.password.unwrap().unwrap();
+        let password_hash = user.password.unwrap();
         let is_valid = verify(password, &password_hash).unwrap();
         if is_valid {
             Ok(user::Model {
                 id: user.id.unwrap(),
                 username: user.username.unwrap(),
-                password: None,
+                password: "".to_string(),
                 email: user.email.unwrap(),
                 created_at: user.created_at.unwrap(),
                 updated_at: user.updated_at.unwrap(),

@@ -1,4 +1,4 @@
-use async_graphql::{Context, Error, Object, Result};
+use async_graphql::{Context, Object, Result};
 
 use entity::async_graphql::{self, ErrorExtensions, InputObject, SimpleObject};
 use entity::user;
@@ -20,7 +20,7 @@ impl CreateUserInput {
         user::Model {
             id: 0,
             username: self.username,
-            password: Some(self.password),
+            password: self.password,
             email: self.email,
             created_at: chrono::Utc::now().to_string(),
             updated_at: chrono::Utc::now().to_string(),
@@ -63,23 +63,31 @@ impl UserMutation {
         input: CreateUserInput,
     ) -> Result<user::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        Ok(Mutation::create_user(conn, input.into_model_with_arbitrary_id()).await?)
+        let res = Mutation::create_user(conn, input.into_model_with_arbitrary_id()).await;
+        if let Ok(user) = res {
+            Ok(user::Model {
+                password: "".to_string(),
+                ..user
+            })
+        } else {
+            Err(async_graphql::Error::new("User already exists")
+                .extend_with(|_, e| e.set("code", "USER_ALREADY_EXISTS")))
+        }
     }
 
     pub async fn delete_user(&self, ctx: &Context<'_>, id: i32) -> Result<DeleteUserResult> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
 
-        let res = Mutation::delete_user(conn, id)
-            .await
-            .expect("Cannot delete user");
-
+        let res = Mutation::delete_user(conn, id).await;
+        let res = res?;
         if res.rows_affected <= 1 {
             Ok(DeleteUserResult {
                 success: true,
                 rows_affected: res.rows_affected,
             })
         } else {
-            unimplemented!()
+            Err(async_graphql::Error::new("Cannot delete user")
+                .extend_with(|_, e| e.set("code", "INTERNAL_SERVER_ERROR")))
         }
     }
     pub async fn login_user(
@@ -108,18 +116,14 @@ impl UserMutation {
         _ctx: &Context<'_>,
         input: RefreshInput,
     ) -> Result<ValidLoginResult> {
-        println!("Token:{}", input.refresh);
-        let claim_token = validate_token(input.refresh.as_str())
-            .await
-            .expect("Invalid Refresh Token !");
-        if claim_token.token_type == TokenType::Refresh as i32 {
-            let access =
-                create_access_token(claim_token.sub, claim_token.scope, TokenType::Access).await;
-            let refresh =
-                create_access_token(claim_token.sub, claim_token.scope, TokenType::Refresh).await;
+        let claim_token = validate_token(input.refresh.as_str()).await;
+        if let Ok(claim) = claim_token {
+            let access = create_access_token(claim.sub, claim.scope, TokenType::Access).await;
+            let refresh = create_access_token(claim.sub, claim.scope, TokenType::Refresh).await;
             Ok(ValidLoginResult { access, refresh })
         } else {
-            Err(Error::new("Error Invalide Token"))
+            Err(async_graphql::Error::new("Invalid refresh token")
+                .extend_with(|_, e| e.set("code", "INVALID_REFRESH_TOKEN")))
         }
     }
 }

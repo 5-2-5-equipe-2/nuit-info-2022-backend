@@ -1,4 +1,5 @@
 use dotenvy::dotenv;
+
 use graphql_core::sea_orm::DatabaseConnection;
 
 pub struct Database {

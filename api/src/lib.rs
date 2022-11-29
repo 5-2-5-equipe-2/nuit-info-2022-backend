@@ -10,6 +10,7 @@ use axum::{
 #[cfg(debug_assertions)]
 use dotenvy::dotenv;
 
+use auth_middleware::auth_middleware;
 use entity::async_graphql;
 use graphql::schema::{build_schema, build_schema_auth, AppSchema, AppSchemaAuth};
 use migration::{Migrator, MigratorTrait};
@@ -20,8 +21,6 @@ mod auth_middleware;
 mod db;
 mod graphql;
 mod jwt;
-
-use auth_middleware::auth_middleware;
 
 async fn graphql_handler(schema: Extension<AppSchema>, req: GraphQLRequest) -> GraphQLResponse {
     schema.execute(req.into_inner()).await.into()

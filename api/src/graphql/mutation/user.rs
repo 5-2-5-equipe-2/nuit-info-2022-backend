@@ -68,14 +68,15 @@ impl UserMutation {
     ) -> Result<user::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
         let res = Mutation::create_user(conn, input.into_model_with_arbitrary_id()).await;
-        if let Ok(user) = res {
-            Ok(user::Model {
-                password: "".to_string(),
-                ..user
-            })
-        } else {
-            Err(async_graphql::Error::new("User already exists")
-                .extend_with(|_, e| e.set("code", "USER_ALREADY_EXISTS")))
+
+        match res {
+            Ok(user) => Ok(user),
+            Err(e) => Err(
+                async_graphql::Error::new(e.to_string()).extend_with(|_, e| {
+                    e.set("code", "INTERNAL_SERVER_ERROR");
+                    e.set("details", "Something went wrong");
+                }),
+            ),
         }
     }
 

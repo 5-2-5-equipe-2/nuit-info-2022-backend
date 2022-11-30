@@ -18,7 +18,7 @@ pub enum CreateUserError {
     PasswordTooWeak,
     #[error("Invalid email")]
     InvalidEmail,
-    #[error("DB Error")]
+    #[error(transparent)]
     DBError(#[from] sea_orm::error::DbErr),
 }
 
@@ -30,8 +30,12 @@ impl Mutation {
         form_data: user::Model,
     ) -> Result<user::Model, CreateUserError> {
         // check if user already exists
-        let user = user::Entity::find_by_id(form_data.id);
-        if user.count(db).await.unwrap() > 0 {
+        let user = user::Entity::find_by_username(&form_data.username);
+        if user.count(db).await? > 0 {
+            return Err(CreateUserError::UserAlreadyExists);
+        }
+        let user = user::Entity::find_by_email(&form_data.email);
+        if user.count(db).await? > 0 {
             return Err(CreateUserError::UserAlreadyExists);
         }
 

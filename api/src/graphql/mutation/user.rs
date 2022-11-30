@@ -13,6 +13,8 @@ pub struct CreateUserInput {
     pub password: String,
     pub email: String,
     pub scope_id: i32,
+    pub first_name: String,
+    pub last_name: String,
 }
 
 impl CreateUserInput {
@@ -25,6 +27,8 @@ impl CreateUserInput {
             created_at: chrono::Utc::now().to_string(),
             updated_at: chrono::Utc::now().to_string(),
             scope_id: self.scope_id,
+            first_name: self.first_name,
+            last_name: self.last_name,
         }
     }
 }

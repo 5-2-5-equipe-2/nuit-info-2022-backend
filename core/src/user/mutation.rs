@@ -105,7 +105,7 @@ impl Mutation {
         let user: user::ActiveModel = User::find_by_username(&username)
             .one(db)
             .await?
-            .ok_or(DbErr::Custom("Cannot find user.".to_owned()))
+            .ok_or_else(|| DbErr::Custom("Cannot find user.".to_owned()))
             .map(Into::into)?;
         let password_hash = user.password.unwrap();
         let is_valid = verify(password, &password_hash).unwrap();
@@ -118,6 +118,8 @@ impl Mutation {
                 created_at: user.created_at.unwrap(),
                 updated_at: user.updated_at.unwrap(),
                 scope_id: user.scope_id.unwrap(),
+                first_name: user.first_name.unwrap(),
+                last_name: user.last_name.unwrap(),
             })
         } else {
             Err(DbErr::Custom("Invalid password.".to_owned()))

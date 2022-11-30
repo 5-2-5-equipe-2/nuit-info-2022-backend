@@ -15,6 +15,8 @@ pub struct Model {
     pub created_at: String,
     pub updated_at: String,
     pub scope_id: i32,
+    pub first_name: String,
+    pub last_name: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

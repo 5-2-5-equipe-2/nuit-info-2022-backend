@@ -8,6 +8,8 @@ edition = "2021"
 [dependencies]
 entity = { path = "../entity" }
 bcrypt = "0.13"
+anyhow = "1.0"
+thiserror = "1.0"
 
 [dependencies.sea-orm]
 version = "^0.10.3" # sea-orm version

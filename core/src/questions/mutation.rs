@@ -2,7 +2,7 @@ use sea_orm::*;
 
 use ::entity::prelude::Questions;
 use ::entity::prelude::User;
-use ::entity::{questions, user};
+use ::entity::questions;
 
 use thiserror::Error;
 

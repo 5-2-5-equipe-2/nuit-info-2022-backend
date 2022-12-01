@@ -1,8 +1,10 @@
 use entity::async_graphql;
+pub use game::GameQuery;
 pub use note::NoteQuery;
 pub use questions::QuestionsQuery;
 pub use user::UserQuery;
 
+pub mod game;
 pub mod note;
 pub mod questions;
 pub mod user;

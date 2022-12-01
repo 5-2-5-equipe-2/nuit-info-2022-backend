@@ -31,6 +31,8 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(User::UpdatedAt).date().not_null())
                     // foreign key to scopes
                     .col(ColumnDef::new(User::ScopeId).integer().not_null())
+                    .col(ColumnDef::new(User::FirstName).string().not_null())
+                    .col(ColumnDef::new(User::LastName).string().not_null())
                     .foreign_key(
                         ForeignKey::create()
                             .name("FK_2e303c3a712662f1fc2a4d0aad6")
@@ -62,4 +64,6 @@ enum User {
     CreatedAt,
     UpdatedAt,
     ScopeId,
+    FirstName,
+    LastName,
 }

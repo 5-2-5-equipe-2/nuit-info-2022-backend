@@ -13,6 +13,8 @@ pub struct CreateUserInput {
     pub password: String,
     pub email: String,
     pub scope_id: i32,
+    pub first_name: String,
+    pub last_name: String,
 }
 
 impl CreateUserInput {
@@ -25,6 +27,8 @@ impl CreateUserInput {
             created_at: chrono::Utc::now().to_string(),
             updated_at: chrono::Utc::now().to_string(),
             scope_id: self.scope_id,
+            first_name: self.first_name,
+            last_name: self.last_name,
         }
     }
 }
@@ -64,14 +68,15 @@ impl UserMutation {
     ) -> Result<user::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
         let res = Mutation::create_user(conn, input.into_model_with_arbitrary_id()).await;
-        if let Ok(user) = res {
-            Ok(user::Model {
-                password: "".to_string(),
-                ..user
-            })
-        } else {
-            Err(async_graphql::Error::new("User already exists")
-                .extend_with(|_, e| e.set("code", "USER_ALREADY_EXISTS")))
+
+        match res {
+            Ok(user) => Ok(user),
+            Err(e) => Err(
+                async_graphql::Error::new(e.to_string()).extend_with(|_, e| {
+                    e.set("code", "INTERNAL_SERVER_ERROR");
+                    e.set("details", "Something went wrong");
+                }),
+            ),
         }
     }
 

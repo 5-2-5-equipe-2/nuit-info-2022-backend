@@ -6,21 +6,59 @@ use sea_orm::*;
 use ::entity::prelude::User;
 use ::entity::user;
 
+use thiserror::Error;
+
 pub struct Mutation;
+
+#[derive(Error, Debug)]
+pub enum CreateUserError {
+    #[error("User already exists")]
+    UserAlreadyExists,
+    #[error("Password too weak")]
+    PasswordTooWeak,
+    #[error("Invalid email")]
+    InvalidEmail,
+    #[error(transparent)]
+    DBError(#[from] sea_orm::error::DbErr),
+}
 
 impl Mutation {}
 
 impl Mutation {
-    pub async fn create_user(db: &DbConn, form_data: user::Model) -> Result<user::Model, DbErr> {
+    pub async fn create_user(
+        db: &DbConn,
+        form_data: user::Model,
+    ) -> Result<user::Model, CreateUserError> {
+        // check if user already exists
+        let user = user::Entity::find_by_username(&form_data.username);
+        if user.count(db).await? > 0 {
+            return Err(CreateUserError::UserAlreadyExists);
+        }
+        let user = user::Entity::find_by_email(&form_data.email);
+        if user.count(db).await? > 0 {
+            return Err(CreateUserError::UserAlreadyExists);
+        }
+
+        // check if password is valid
+        if form_data.password.len() < 8 {
+            return Err(CreateUserError::PasswordTooWeak);
+        }
+
+        // check if email is valid
+        if !form_data.email.contains('@') {
+            return Err(CreateUserError::InvalidEmail);
+        }
+
         let active_model = user::ActiveModel {
             username: Set(form_data.username.to_owned()),
-            password: Set(hash(form_data.password.to_owned(), 4).unwrap()),
+            password: Set(hash(&form_data.password, 4).unwrap()),
             email: Set(form_data.email.to_owned()),
             scope_id: Set(form_data.scope_id.to_owned()),
             created_at: Set(form_data.created_at.to_owned()),
             updated_at: Set(form_data.updated_at.to_owned()),
             ..Default::default()
         };
+
         println!("active_model: {:?}", active_model);
         let res = User::insert(active_model).exec(db).await?;
 
@@ -71,7 +109,7 @@ impl Mutation {
         let user: user::ActiveModel = User::find_by_username(&username)
             .one(db)
             .await?
-            .ok_or(DbErr::Custom("Cannot find user.".to_owned()))
+            .ok_or_else(|| DbErr::Custom("Cannot find user.".to_owned()))
             .map(Into::into)?;
         let password_hash = user.password.unwrap();
         let is_valid = verify(password, &password_hash).unwrap();
@@ -84,6 +122,8 @@ impl Mutation {
                 created_at: user.created_at.unwrap(),
                 updated_at: user.updated_at.unwrap(),
                 scope_id: user.scope_id.unwrap(),
+                first_name: user.first_name.unwrap(),
+                last_name: user.last_name.unwrap(),
             })
         } else {
             Err(DbErr::Custom("Invalid password.".to_owned()))

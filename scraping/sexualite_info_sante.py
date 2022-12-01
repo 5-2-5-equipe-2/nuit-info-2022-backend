@@ -5,7 +5,7 @@ import json
 
 articles = []
 
-soup = bs(requests.get("https://www.sexualites-info-sante.fr").text)
+soup = bs(requests.get("https://www.sexualites-info-sante.fr").text,"lxml")
 arti = {}
 for categorie in soup.find('ul',{'class':'wsp-posts-list'}).findAll('li'):
     try:
@@ -16,15 +16,15 @@ for categorie in soup.find('ul',{'class':'wsp-posts-list'}).findAll('li'):
     except:
         cat = categorie.text
         lien = categorie.a["href"]
-        arti["articles"].append({"titre":cat, "lien":lien})
+        art_soup = bs(requests.get(lien).text,"lxml").find("div",{"class":"et-l et-l--post"})
+        try:
+            image = art_soup.find("img")["src"]
+        except:
+            image = None
+        contenue = art_soup.find('div', {"class":"et_pb_text_inner"}).text
+        arti["articles"].append({"titre":cat, "lien":lien, "image":image, contenue:contenue})
 articles.append(arti)
 
-print(articles)
-##for article in soup.findAll('article'):
-##    content = article.find("div",{"class":"entry-content"}).text.strip()
-##    tags = [a.text for a in article.footer.findAll("a")]
-##    articles.append({"titre":article.a.text, "résumé":content, "lien":article.a['href'], "catégories":tags})
-
-##print(len(articles))
-##with open('articles.json','w') as file:
-##    file.write(json.dumps(articles))
+print(articles[0])
+with open('resultats/sexInSer_articles.json','w') as file:
+    file.write(json.dumps(articles))

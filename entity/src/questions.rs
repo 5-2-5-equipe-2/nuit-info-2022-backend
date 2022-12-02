@@ -5,12 +5,15 @@ use sea_orm::entity::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, SimpleObject)]
 #[sea_orm(table_name = "questions")]
+#[graphql(concrete(name = "Questions", params()))]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub question: String,
     pub answer: String,
     pub category: String,
+    pub a1: String,
+    pub a2: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -19,6 +19,8 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(Questions::Question).string().not_null())
+                    .col(ColumnDef::new(Questions::A1).string().not_null())
+                    .col(ColumnDef::new(Questions::A2).string().not_null())
                     .col(ColumnDef::new(Questions::Answer).string().not_null())
                     .col(ColumnDef::new(Questions::Category).string().not_null())
                     .to_owned(),
@@ -39,6 +41,8 @@ enum Questions {
     Table,
     Id,
     Question,
+    A1,
+    A2,
     Answer,
     Category,
 }

@@ -1,11 +1,13 @@
-use crate::jwt::{validate_token, TokenType};
+use crate::jwt::{validate_token, Claims, TokenType};
 
 use async_graphql::{Context, Object, Result};
+use axum::Extension;
 
 use entity::async_graphql::{self, ErrorExtensions, InputObject, SimpleObject};
 use entity::game;
 use graphql_core::game::Mutation;
 use graphql_core::sea_orm::DatabaseConnection;
+use migration::Token;
 
 #[derive(InputObject)]
 pub struct StartGameInput {
@@ -13,11 +15,10 @@ pub struct StartGameInput {
 }
 
 impl StartGameInput {
-    async fn into_model_with_arbitrary_id(self) -> game::Model {
-        let user = validate_token(&self.token).await.unwrap();
+    async fn into_model_with_arbitrary_id(self, user_id: i32) -> game::Model {
         game::Model {
             id: 0,
-            user_id: user.sub,
+            user_id: user_id,
             health: 100,
         }
     }
@@ -51,7 +52,8 @@ impl GameMutation {
         input: StartGameInput,
     ) -> Result<game::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        let res = Mutation::start_game(conn, input.into_model_with_arbitrary_id().await).await;
+        let uid = validate_token(&input.token).await?.sub;
+        let res = Mutation::start_game(conn, input.into_model_with_arbitrary_id(uid).await).await;
 
         match res {
             Ok(game) => Ok(game),
@@ -70,9 +72,8 @@ impl GameMutation {
         input: AnswerQuestionInput,
     ) -> Result<AnswerQuestionResult> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        let user_id = validate_token(&input.token).await.unwrap();
-        let res =
-            Mutation::answer_question(conn, user_id.sub, input.question_id, input.answer).await;
+        let uid = validate_token(&input.token).await?.sub;
+        let res = Mutation::answer_question(conn, uid, input.question_id, input.answer).await;
 
         match res {
             Ok(game) => Ok(AnswerQuestionResult { success: true }),

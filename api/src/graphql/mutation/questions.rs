@@ -9,10 +9,11 @@ use crate::jwt::{create_access_token, validate_token, TokenType};
 
 #[derive(InputObject)]
 pub struct AddQuestionInput {
-    pub token: String,
     pub question: String,
     pub answer: String,
     pub category: String,
+    pub a1: String,
+    pub a2: String,
 }
 
 impl AddQuestionInput {
@@ -22,6 +23,8 @@ impl AddQuestionInput {
             question: self.question,
             answer: self.answer,
             category: self.category,
+            a1: self.a1,
+            a2: self.a2,
         }
     }
 }

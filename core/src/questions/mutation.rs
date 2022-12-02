@@ -31,6 +31,9 @@ impl Mutation {
         let active_model = questions::ActiveModel {
             question: Set(form_data.question.to_owned()),
             answer: Set(form_data.answer.to_owned()),
+            a1: Set(form_data.a1.to_owned()),
+            a2: Set(form_data.a2.to_owned()),
+            category: Set(form_data.category.to_owned()),
             ..Default::default()
         };
 

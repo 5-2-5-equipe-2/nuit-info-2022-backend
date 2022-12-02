@@ -2,7 +2,6 @@ use ::entity::questions::Model;
 use sea_orm::*;
 
 use ::entity::prelude::Questions;
-use ::entity::questions;
 
 pub struct Query;
 

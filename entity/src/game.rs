@@ -5,6 +5,7 @@ use sea_orm::entity::prelude::*;
 
 #[derive(Copy, Clone, Debug, PartialEq, DeriveEntityModel, Eq, SimpleObject)]
 #[sea_orm(table_name = "game")]
+#[graphql(concrete(name = "Game", params()))]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,

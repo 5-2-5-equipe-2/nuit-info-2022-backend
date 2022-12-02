@@ -75,6 +75,7 @@ impl Mutation {
 
         if answer == question.answer {
             let active_model = game::ActiveModel {
+                id: Set(current_game.id),
                 health: Set(current_game.health + 1),
                 ..core::default::Default::default()
             };

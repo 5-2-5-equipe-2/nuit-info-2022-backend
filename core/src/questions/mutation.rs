@@ -1,3 +1,4 @@
+use sea_orm::sea_query::ColumnSpec::Default;
 use sea_orm::*;
 
 use ::entity::prelude::Questions;
@@ -29,12 +30,13 @@ impl Mutation {
         }
 
         let active_model = questions::ActiveModel {
+            id: NotSet,
             question: Set(form_data.question.to_owned()),
             answer: Set(form_data.answer.to_owned()),
             a1: Set(form_data.a1.to_owned()),
             a2: Set(form_data.a2.to_owned()),
             category: Set(form_data.category.to_owned()),
-            ..Default::default()
+            explanation: Set(form_data.explanation.to_owned()),
         };
 
         let res = Questions::insert(active_model).exec(db).await?;

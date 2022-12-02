@@ -14,6 +14,7 @@ pub struct Model {
     pub category: String,
     pub a1: String,
     pub a2: String,
+    pub explanation: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

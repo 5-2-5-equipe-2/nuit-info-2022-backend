@@ -22,6 +22,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Questions::A1).string().not_null())
                     .col(ColumnDef::new(Questions::A2).string().not_null())
                     .col(ColumnDef::new(Questions::Answer).string().not_null())
+                    .col(ColumnDef::new(Questions::Explanation).string().not_null())
                     .col(ColumnDef::new(Questions::Category).string().not_null())
                     .to_owned(),
             )
@@ -45,4 +46,5 @@ enum Questions {
     A2,
     Answer,
     Category,
+    Explanation,
 }

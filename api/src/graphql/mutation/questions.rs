@@ -14,6 +14,7 @@ pub struct AddQuestionInput {
     pub category: String,
     pub a1: String,
     pub a2: String,
+    pub explanation: String,
 }
 
 impl AddQuestionInput {
@@ -25,6 +26,7 @@ impl AddQuestionInput {
             category: self.category,
             a1: self.a1,
             a2: self.a2,
+            explanation: self.explanation,
         }
     }
 }

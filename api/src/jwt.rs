@@ -2,14 +2,14 @@ use chrono::Utc;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
-use entity::async_graphql::Error;
+use entity::async_graphql::{self, Error, InputObject};
 
 pub enum TokenType {
     Access,
     Refresh,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, InputObject)]
 pub struct Claims {
     pub sub: i32,
     pub scope: i32,

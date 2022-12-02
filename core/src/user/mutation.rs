@@ -4,7 +4,7 @@ use bcrypt::{hash, verify, DEFAULT_COST};
 use sea_orm::*;
 
 use ::entity::prelude::User;
-use ::entity::user;
+use ::entity::{questions, user};
 
 use thiserror::Error;
 

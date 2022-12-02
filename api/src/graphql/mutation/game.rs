@@ -44,6 +44,11 @@ pub struct AnswerQuestionResult {
 #[derive(Default)]
 pub struct GameMutation;
 
+#[derive(InputObject)]
+pub struct GameInput {
+    pub token: String,
+}
+
 #[Object]
 impl GameMutation {
     pub async fn start_game(
@@ -54,11 +59,10 @@ impl GameMutation {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
         let uid = validate_token(&input.token).await?.sub;
         if uid == -1 {
-            return Err(
-                async_graphql::Error::new("HONEY POT").extend_with(|_, e| {
-                    e.set("code", "HONEY_POT");
-                    e.set("details", "You trap in a honey pot");
-                }));
+            return Err(async_graphql::Error::new("HONEY POT").extend_with(|_, e| {
+                e.set("code", "HONEY_POT");
+                e.set("details", "You trap in a honey pot");
+            }));
         }
         let res = Mutation::start_game(conn, input.into_model_with_arbitrary_id(uid).await).await;
 
@@ -84,6 +88,22 @@ impl GameMutation {
 
         match res {
             Ok(game) => Ok(AnswerQuestionResult { success: true }),
+            Err(e) => Err(
+                async_graphql::Error::new(e.to_string()).extend_with(|_, e| {
+                    e.set("code", "INTERNAL_SERVER_ERROR");
+                    e.set("details", "Something went wrong");
+                }),
+            ),
+        }
+    }
+
+    pub async fn end_game(&self, ctx: &Context<'_>, input: GameInput) -> Result<AddGameResult> {
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
+        let uid = validate_token(&input.token).await?.sub;
+        let res = Mutation::end_game(conn, uid).await;
+
+        match res {
+            Ok(game) => Ok(AddGameResult { success: true }),
             Err(e) => Err(
                 async_graphql::Error::new(e.to_string()).extend_with(|_, e| {
                     e.set("code", "INTERNAL_SERVER_ERROR");

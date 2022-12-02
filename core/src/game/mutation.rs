@@ -92,4 +92,19 @@ impl Mutation {
         }
         Ok(current_game)
     }
+
+    pub async fn end_game(db: &DbConn, user_id: i32) -> Result<(), AnswerQuestionError> {
+        let current_game = Game::find_by_user_id(user_id).one(db).await;
+        if let Err(e) = current_game {
+            return Err(AnswerQuestionError::GameDoesNotExist);
+        }
+        let current_game = current_game.unwrap().unwrap();
+
+        Game::delete()
+            .filter(game::Column::UserId.eq(current_game.user_id))
+            .exec(db)
+            .await?;
+
+        Ok(())
+    }
 }

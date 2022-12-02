@@ -74,17 +74,37 @@ impl Mutation {
         let question = question.unwrap().unwrap();
 
         if answer == question.answer {
-            unimplemented!();
+            let active_model = game::ActiveModel {
+                health: Set(current_game.health + 1),
+                ..core::default::Default::default()
+            };
+
+            let res = Game::update(active_model)
+                .filter(game::Column::UserId.eq(current_game.user_id))
+                .exec(db)
+                .await?;
+
+            return Ok(game::Model {
+                id: current_game.id,
+                user_id: current_game.user_id,
+                health: current_game.health + 1,
+            });
         }
-        let active_model = game::ActiveModel {
-            health: Set(current_game.health - 1),
-            ..core::default::Default::default()
-        };
-        let res = Game::update(active_model)
+        Ok(current_game)
+    }
+
+    pub async fn end_game(db: &DbConn, user_id: i32) -> Result<(), AnswerQuestionError> {
+        let current_game = Game::find_by_user_id(user_id).one(db).await;
+        if let Err(e) = current_game {
+            return Err(AnswerQuestionError::GameDoesNotExist);
+        }
+        let current_game = current_game.unwrap().unwrap();
+
+        Game::delete()
             .filter(game::Column::UserId.eq(current_game.user_id))
             .exec(db)
             .await?;
 
-        Ok(res)
+        Ok(())
     }
 }

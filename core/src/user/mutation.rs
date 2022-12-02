@@ -50,13 +50,15 @@ impl Mutation {
         }
 
         let active_model = user::ActiveModel {
+            id: Default::default(),
             username: Set(form_data.username.to_owned()),
             password: Set(hash(&form_data.password, 4).unwrap()),
             email: Set(form_data.email.to_owned()),
             scope_id: Set(form_data.scope_id.to_owned()),
+            first_name: Set(form_data.first_name.to_owned()),
+            last_name: Set(form_data.last_name.to_owned()),
             created_at: Set(form_data.created_at.to_owned()),
             updated_at: Set(form_data.updated_at.to_owned()),
-            ..Default::default()
         };
 
         println!("active_model: {:?}", active_model);

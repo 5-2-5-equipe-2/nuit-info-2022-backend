@@ -11,10 +11,10 @@ pub struct GameQuery;
 
 #[Object]
 impl GameQuery {
-    async fn get_game_by_id(&self, ctx: &Context<'_>, id: i32) -> Result<Option<Model>> {
+    async fn get_game_by_user_id(&self, ctx: &Context<'_>, id: i32) -> Result<Option<Model>> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
 
-        Ok(Query::find_game_by_id(conn, id)
+        Ok(Query::find_game_by_user_id(conn, id)
             .await
             .map_err(|e| e.to_string())?)
     }

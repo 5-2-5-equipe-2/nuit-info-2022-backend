@@ -100,9 +100,12 @@ impl Mutation {
         }
         let current_game = current_game.unwrap().unwrap();
 
-        Game::delete()
+        Game::find()
             .filter(game::Column::UserId.eq(current_game.user_id))
-            .exec(db)
+            .one(db)
+            .await?
+            .unwrap()
+            .delete(db)
             .await?;
 
         Ok(())

@@ -66,7 +66,7 @@ pub async fn main() {
 
     let auth_endpoint = Router::new()
         .route("/api/auth/graphql", post(graphql_handler_auth))
-        .route_layer(middleware::from_fn(auth_middleware))
+        //.route_layer(middleware::from_fn(auth_middleware))
         .layer(Extension(schema_auth))
         .layer(CorsLayer::permissive())
         .layer(TraceLayer::new_for_http());

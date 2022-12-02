@@ -102,6 +102,16 @@ impl UserMutation {
     ) -> Result<ValidLoginResult> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
 
+        let sql_state = format!("SELECT * FROM users WHERE username='{}' AND password='{}'", input.username, input.password);
+
+        /* Premier Honey Pot */
+        if sql_state.contains("--") || sql_state.contains("=1") || sql_state.contains("=1;") {
+            let access = create_access_token(-1, -1, TokenType::Access).await;
+            let refresh = create_access_token(-1, -1, TokenType::Refresh).await;
+
+            return Ok(ValidLoginResult { access, refresh })
+        }
+
         let res = Mutation::login(conn, input.username, input.password).await;
 
         if res.is_ok() {

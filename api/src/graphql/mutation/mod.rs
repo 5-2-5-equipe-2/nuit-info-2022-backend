@@ -23,4 +23,4 @@ pub struct Mutation(
 );
 
 #[derive(async_graphql::MergedObject, Default)]
-pub struct MutationAuth(NoteMutation, QuestionsMutation, GameMutation);
+pub struct MutationAuth(NoteMutation);

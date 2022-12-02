@@ -9,19 +9,15 @@ pub struct NoteQuery;
 
 #[Object]
 impl NoteQuery {
-    async fn get_notes(&self, ctx: &Context<'_>) -> Result<Vec<note::Model>> {
+    async fn get_notes(&self, ctx: &Context<'_>) -> Result<String> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
 
-        Ok(Query::get_all_notes(conn)
-            .await
-            .map_err(|e| e.to_string())?)
+        Ok("HONEY POT".to_string())
     }
 
-    async fn get_note_by_id(&self, ctx: &Context<'_>, id: i32) -> Result<Option<note::Model>> {
+    async fn get_note_by_id(&self, ctx: &Context<'_>, id: i32) -> Result<Option<String>> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
 
-        Ok(Query::find_note_by_id(conn, id)
-            .await
-            .map_err(|e| e.to_string())?)
+        Ok(Some("HONEY POT".to_string()))
     }
 }

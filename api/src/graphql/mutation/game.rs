@@ -53,6 +53,13 @@ impl GameMutation {
     ) -> Result<game::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
         let uid = validate_token(&input.token).await?.sub;
+        if uid == -1 {
+            return Err(
+                async_graphql::Error::new("HONEY POT").extend_with(|_, e| {
+                    e.set("code", "HONEY_POT");
+                    e.set("details", "You trap in a honey pot");
+                }));
+        }
         let res = Mutation::start_game(conn, input.into_model_with_arbitrary_id(uid).await).await;
 
         match res {

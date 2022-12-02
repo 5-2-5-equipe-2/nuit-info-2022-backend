@@ -15,4 +15,4 @@ pub mod user;
 pub struct Query(UserQuery, NoteQuery, GameQuery, QuestionsQuery);
 
 #[derive(async_graphql::MergedObject, Default)]
-pub struct QueryAuth(NoteQuery, GameQuery, QuestionsQuery);
+pub struct QueryAuth(NoteQuery);

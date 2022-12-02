@@ -11,3 +11,4 @@ members = [".", "api", "core", "entity", "migration"]
 
 [dependencies]
 graphql-example-api = { path = "api" }
+rand = "0.8.4"

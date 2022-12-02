@@ -1178,6 +1178,7 @@ dependencies = [
  "anyhow",
  "bcrypt",
  "entity",
+ "rand",
  "sea-orm",
  "thiserror",
  "tokio",
@@ -1196,6 +1197,7 @@ dependencies = [
  "graphql-core",
  "jsonwebtoken",
  "migration",
+ "rand",
  "serde",
  "thiserror",
  "tokio",
@@ -1670,6 +1672,7 @@ name = "nuit-info"
 version = "0.1.0"
 dependencies = [
  "graphql-example-api",
+ "rand",
 ]
 
 [[package]]

@@ -10,6 +10,7 @@ entity = { path = "../entity" }
 bcrypt = "0.13"
 anyhow = { version = "1.0", features = ["backtrace"] }
 thiserror = "1.0"
+rand = "0.8"
 
 [dependencies.sea-orm]
 version = "^0.10.3" # sea-orm version

@@ -18,4 +18,12 @@ impl QuestionsQuery {
             .await
             .map_err(|e| e.to_string())?)
     }
+
+    async fn get_random_question(&self, ctx: &Context<'_>) -> Result<Option<Model>> {
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
+
+        Ok(Query::find_random_question(conn)
+            .await
+            .map_err(|e| e.to_string())?)
+    }
 }

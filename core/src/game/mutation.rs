@@ -74,17 +74,22 @@ impl Mutation {
         let question = question.unwrap().unwrap();
 
         if answer == question.answer {
-            unimplemented!();
-        }
-        let active_model = game::ActiveModel {
-            health: Set(current_game.health - 1),
-            ..core::default::Default::default()
-        };
-        let res = Game::update(active_model)
-            .filter(game::Column::UserId.eq(current_game.user_id))
-            .exec(db)
-            .await?;
+            let active_model = game::ActiveModel {
+                health: Set(current_game.health + 1),
+                ..core::default::Default::default()
+            };
 
-        Ok(res)
+            let res = Game::update(active_model)
+                .filter(game::Column::UserId.eq(current_game.user_id))
+                .exec(db)
+                .await?;
+
+            return Ok(game::Model {
+                id: current_game.id,
+                user_id: current_game.user_id,
+                health: current_game.health + 1,
+            });
+        }
+        Ok(current_game)
     }
 }

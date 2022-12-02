@@ -19,7 +19,7 @@ impl StartGameInput {
         game::Model {
             id: 0,
             user_id: user_id,
-            health: 100,
+            health: 0,
         }
     }
 }
